@@ -1,8 +1,3 @@
 [build]
-  publish = "."        # ビルド出力のルート
+  publish = "/"
   functions = "functions"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
