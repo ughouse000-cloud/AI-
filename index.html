@@ -3,70 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>静かな伴走者</title>
-
-<style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#f7f9f8;
-  font-family:sans-serif;
-}
-
-.container{
-  text-align:center;
-  background:white;
-  padding:40px;
-  border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.05);
-  width:420px;
-}
-
-.omikuji{
-  margin-top:6px;
-  margin-bottom:14px;
-  font-size:15px;
-  color:#666;
-  line-height:1.8;
-  font-weight:bold;
-}
-
-textarea{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  resize:none;
-  font-size:14px;
-}
-
-.main-btn{
-  margin-top:15px;
-  padding:8px 20px;
-  border:none;
-  border-radius:20px;
-  background:#333;
-  color:white;
-  cursor:pointer;
-}
-
-.main-btn:hover{
-  opacity:0.8;
-}
-
-#response{
-  margin-top:20px;
-  font-size:14px;
-  line-height:1.6;
-  color:#444;
-  text-align:left;
-  white-space:pre-wrap;
-}
-<link rel="stylesheet" href="css/style.css">
-
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -75,84 +12,36 @@ textarea{
 
   <h2>静かな伴走者</h2>
 
-  <!-- おみくじ表示 -->
+  <!-- お賽銭 -->
+  <div class="osaisen-box">
+    <p>
+      あなたの氣持ちを形に変えて届けましょう。<br>
+      金額はご自由にお選びいただけます。
+    </p>
+
+    <form action="https://www.paypal.com/donate" method="post" target="_blank">
+      <input type="hidden" name="business" value="あなたのPayPalメール">
+      <input type="hidden" name="currency_code" value="JPY">
+      <button class="donate-btn">お賽銭を納める</button>
+    </form>
+
+    <div class="paypal-note">
+      <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg">
+      <span>安全決済</span>
+    </div>
+  </div>
+
+  <!-- おみくじ -->
   <div class="omikuji" id="omikujiDisplay"></div>
 
-  <!-- AI チャット入力 -->
-  <textarea id="message" rows="4" placeholder="この言葉の意味を知りたいですか"></textarea>
-  <br>
-  <button class="main-btn" onclick="send()">この言葉を深堀りする</button>
+  <!-- 入力 -->
+  <textarea id="message" rows="4" placeholder="この言葉をどう感じましたか"></textarea>
+  <button class="main-btn" onclick="send()">この言葉を深掘りする</button>
 
-  <!-- AI の返答表示 -->
   <div id="response"></div>
 
 </div>
 
-<script>
-/* ===== おみくじ表示 ===== */
-const params = new URLSearchParams(window.location.search);
-const omikujiWord =
-  params.get("word") || "ことばは、いま静かにあなたを待っています";
-
-document.getElementById("omikujiDisplay").innerText = omikujiWord;
-
-
-/* ===== 無料回数制限 ===== */
-const FREE_LIMIT = 999;
-let usedCount = Number(localStorage.getItem("ai_free_used") || 0);
-
-function lockUI(){
-  document.getElementById("message").disabled = true;
-  document.querySelector(".main-btn").disabled = true;
-  document.getElementById("response").innerHTML =
-    "無料相談はここまでです。";
-}
-
-if(usedCount >= FREE_LIMIT){
-  lockUI();
-}
-
-
-/* ===== AI送信 ===== */
-async function send() {
-
-  if(usedCount >= FREE_LIMIT){
-    lockUI();
-    return;
-  }
-
-  const message = document.getElementById("message").value.trim();
-  if(!message){
-    alert("メッセージを入力してください");
-    return;
-  }
-
-  document.getElementById("response").innerText = "……整えています";
-
-  try {
-    // Netlify Functions 用パス
-    const res = await fetch("/.netlify/functions/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: message, omikuji: omikujiWord })
-    });
-
-    const data = await res.json(); // JSON 形式で返ってくる想定
-    document.getElementById("response").innerText = data.reply;
-
-    usedCount++;
-    localStorage.setItem("ai_free_used", usedCount);
-
-    if(usedCount >= FREE_LIMIT){
-      setTimeout(lockUI, 500);
-    }
-
-  } catch(err) {
-    document.getElementById("response").innerText = "通信エラーが発生しました。";
-  }
-}
-
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
