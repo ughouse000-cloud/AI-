@@ -1,61 +1,59 @@
-body {
-  font-family: "Yu Gothic", sans-serif;
-  background-color: #fdf6e3;
-  color: #333;
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f7f9f8;
+  font-family:sans-serif;
 }
 
-.container {
-  max-width: 600px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #fff8dc;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+.container{
+  text-align:center;
+  background:white;
+  padding:40px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.05);
+  width:420px;
 }
 
-h1 {
-  text-align: center;
+.omikuji{
+  margin-top:6px;
+  margin-bottom:14px;
+  font-size:15px;
+  color:#666;
+  line-height:1.8;
+  font-weight:bold;
 }
 
-.omikuji {
-  text-align: center;
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  font-weight: bold;
-  color: #d2691e;
+textarea{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  resize:none;
+  font-size:14px;
 }
 
-.chat-output {
-  border: 1px solid #ddd;
-  padding: 10px;
-  height: 300px;
-  overflow-y: auto;
-  margin-bottom: 10px;
-  background-color: #fffaf0;
-  border-radius: 8px;
+.main-btn{
+  margin-top:15px;
+  padding:8px 20px;
+  border:none;
+  border-radius:20px;
+  background:#333;
+  color:white;
+  cursor:pointer;
 }
 
-form {
-  display: flex;
+.main-btn:hover{
+  opacity:0.8;
 }
 
-input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-button {
-  padding: 10px 20px;
-  margin-left: 5px;
-  border: none;
-  border-radius: 8px;
-  background-color: #f4a261;
-  color: #fff;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #e76f51;
+#response{
+  margin-top:20px;
+  font-size:14px;
+  line-height:1.6;
+  color:#444;
+  text-align:left;
+  white-space:pre-wrap;
 }
