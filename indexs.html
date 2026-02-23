@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>静かな伴走者</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f7f9f8;
+  font-family:sans-serif;
+}
+
+.container{
+  text-align:center;
+  background:white;
+  padding:40px;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.05);
+  width:420px;
+}
+
+.osaisen-box{
+  margin-bottom:25px;
+  padding:15px;
+  border-radius:10px;
+  background:#f3f6f4;
+  font-size:13px;
+  line-height:1.7;
+}
+
+.donate-btn{
+  padding:10px 18px;
+  border:none;
+  background:red;
+  color:white;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.donate-btn:hover{
+  opacity:0.85;
+}
+
+.paypal-note{
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:12px;
+  color:#666;
+}
+
+.omikuji{
+  margin-top:6px;
+  margin-bottom:14px;
+  font-size:15px;
+  color:#666;
+  line-height:1.8;
+}
+
+textarea{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  resize:none;
+  font-size:14px;
+}
+
+.main-btn{
+  margin-top:15px;
+  padding:8px 20px;
+  border:none;
+  border-radius:20px;
+  background:#333;
+  color:white;
+  cursor:pointer;
+}
+
+.main-btn:hover{
+  opacity:0.8;
+}
+
+#response{
+  margin-top:20px;
+  font-size:14px;
+  line-height:1.6;
+  color:#444;
+  text-align:left;
+  white-space:pre-wrap;
+}
+
+.disclaimer{
+  margin-top:14px;
+  font-size:12px;
+  line-height:1.6;
+  color:#777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- お賽銭エリア -->
+  <div class="osaisen-box">
+    <p>
+      あなたの氣持ちを形に変えて、あんがとさんに届けましょう<br>
+      金額はご自由にご記入いただけます
+    </p>
+
+    <form action="https://www.paypal.com/donate" method="post" target="_blank">
+      <input type="hidden" name="business" value="あなたのPayPalメール">
+      <input type="hidden" name="currency_code" value="JPY">
+      <button class="donate-btn">お賽銭箱</button>
+    </form>
+
+    <div class="paypal-note">
+      <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg">
+      <span>安全決済</span>
+    </div>
+  </div>
+
+  <h2>静かな伴走者</h2>
+
+  <div class="omikuji" id="omikujiDisplay"></div>
+
+  <textarea id="message" rows="4" placeholder="この言葉の意味を知りたいですか"></textarea>
+  <br>
+  <button class="main-btn" onclick="send()">この言葉を深堀りする</button>
+
+  <div class="disclaimer">
+    この対話はAIによる参考メッセージです。<br>
+    診断・治療・法律・専門判断の代わりにはなりません。<br>
+    無料のメッセージは１回のみです。
+  </div>
+
+  <div id="response"></div>
+
+</div>
+
+<script>
+
+/* ===== おみくじ表示 ===== */
+
+const params = new URLSearchParams(window.location.search);
+const omikujiWord =
+  params.get("word") || "ことばは、いま静かにあなたを待っています";
+
+document.getElementById("omikujiDisplay").innerText = omikujiWord;
+
+
+/* ===== 無料回数制限 ===== */
+
+const FREE_LIMIT = 1;
+let usedCount = Number(localStorage.getItem("ai_free_used") || 0);
+
+function lockUI(){
+  document.getElementById("message").disabled = true;
+  document.querySelector(".main-btn").disabled = true;
+  document.getElementById("response").innerHTML =
+    "無料相談はここまでです。<br><br>" +
+    "続きを整えますか？<br>" +
+    "静かな伴走を続ける（ワンコイン）";
+}
+
+if(usedCount >= FREE_LIMIT){
+  lockUI();
+}
+
+
+/* ===== AI送信 ===== */
+
+async function send() {
+
+  if(usedCount >= FREE_LIMIT){
+    lockUI();
+    return;
+  }
+
+  const message = document.getElementById("message").value.trim();
+
+  if(!message){
+    alert("メッセージを入力してください");
+    return;
+  }
+
+  document.getElementById("response").innerText = "……整えています";
+
+  try {
+    const res = await fetch("http://localhost:3000/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: message,
+        omikuji: omikujiWord
+      })
+    });
+
+    const text = await res.text();
+    document.getElementById("response").innerText = text;
+
+    usedCount++;
+    localStorage.setItem("ai_free_used", usedCount);
+
+    if(usedCount >= FREE_LIMIT){
+      setTimeout(lockUI, 500);
+    }
+
+  } catch(err) {
+    document.getElementById("response").innerText =
+      "通信エラーが発生しました。";
+  }
+}
+
+<div id="chat-container" style="border:1px solid #ccc; padding:10px; width:400px;">
+  <h2>AIチャット</h2>
+  <div id="chat-output" style="height:300px; overflow-y:auto; border:1px solid #eee; padding:5px;"></div>
+  <form id="chat-form">
+    <input id="chat-input" type="text" placeholder="メッセージを入力" required style="width:80%;">
+    <button type="submit">送信</button>
+  </form>
+</div>
+
+<script src="js/chat.js">
+
+</script>
+
+</body>
+</html>
